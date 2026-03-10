@@ -44,4 +44,41 @@ class AuthTest extends TestCase
 
         $response->assertStatus(200); 
     }
+
+    public function test_error_al_iniciar_sesion_con_password_incorrecta()
+    {
+        $user = User::factory()->create([
+            'email' => 'real@correo.com',
+            'password' => Hash::make('password123'),
+        ]);
+
+        $response = $this->postJson('/api/v1/login', [
+            'email' => 'real@correo.com',
+            'password' => 'clave-equivocada', 
+        ]);
+
+        $response->assertStatus(422);}
+
+    public function test_error_al_cerrar_sesion_sin_estar_autenticado()
+    {
+        $response = $this->postJson('/api/v1/logout');
+
+        $response->assertStatus(401); 
+    }
+    
+    public function test_error_al_ver_perfil_sin_estar_autenticado()
+    {
+        $response = $this->getJson('/api/v1/profile');
+        $response->assertStatus(401);
+    }
+
+    public function test_error_al_iniciar_sesion_con_email_inexistente()
+    {
+        $response = $this->postJson('/api/v1/login', [
+            'email' => 'noexisto@correo.com',
+            'password' => 'password123',
+        ]);
+
+        $response->assertStatus(422); 
+    }
 }

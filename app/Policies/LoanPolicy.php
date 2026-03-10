@@ -12,9 +12,8 @@ class LoanPolicy
 
     public function viewAny(User $user): bool { return true; }
 
-    public function create(User $user): bool
-    {
-        return $user->hasRole('estudiante') || $user->hasRole('docente');
+    public function create(User $user): bool {
+        return $user->hasPermissionTo('realizar prestamos');
     }
 
     public function update(User $user, Loan $loan): bool

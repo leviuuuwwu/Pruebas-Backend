@@ -13,18 +13,7 @@ class BookPolicy
     public function viewAny(User $user): bool { return true; }
     public function view(User $user, Book $book): bool { return true; }
 
-    public function create(User $user): bool
-    {
-        return $user->hasRole('bibliotecario');
-    }
-
-    public function update(User $user, Book $book): bool
-    {
-        return $user->hasRole('bibliotecario');
-    }
-
-    public function delete(User $user, Book $book): bool
-    {
-        return $user->hasRole('bibliotecario');
-    }
+    public function create(User $user): bool { return $user->hasPermissionTo('gestionar libros'); }
+    public function update(User $user, Book $book): bool { return $user->hasPermissionTo('gestionar libros'); }
+    public function delete(User $user, Book $book): bool { return $user->hasPermissionTo('gestionar libros'); }
 }
