@@ -60,4 +60,58 @@ class BookTest extends TestCase
 
         $response->assertStatus(201); 
     }
+
+    public function test_cualquier_usuario_puede_ver_el_detalle_de_un_libro()
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')->getJson("/api/v1/books/{$book->id}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_estudiante_no_puede_actualizar_libro_y_recibe_error_403()
+    {
+        $estudiante = User::factory()->create()->assignRole('estudiante');
+        $book = Book::factory()->create();
+
+        $response = $this->actingAs($estudiante, 'sanctum')->putJson("/api/v1/books/{$book->id}", [
+            'title' => 'Titulo Modificado',
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_bibliotecario_puede_actualizar_libro()
+    {
+        $bibliotecario = User::factory()->create()->assignRole('bibliotecario');
+        $book = Book::factory()->create();
+
+        $response = $this->actingAs($bibliotecario, 'sanctum')->putJson("/api/v1/books/{$book->id}", [
+            'title' => 'Titulo Actualizado Oficialmente',
+        ]);
+
+        $response->assertStatus(200);
+    }
+
+    public function test_estudiante_no_puede_eliminar_libro_y_recibe_error_403()
+    {
+        $estudiante = User::factory()->create()->assignRole('estudiante');
+        $book = Book::factory()->create();
+
+        $response = $this->actingAs($estudiante, 'sanctum')->deleteJson("/api/v1/books/{$book->id}");
+
+        $response->assertStatus(403);
+    }
+
+    public function test_bibliotecario_puede_eliminar_libro()
+    {
+        $bibliotecario = User::factory()->create()->assignRole('bibliotecario');
+        $book = Book::factory()->create();
+
+        $response = $this->actingAs($bibliotecario, 'sanctum')->deleteJson("/api/v1/books/{$book->id}");
+
+        $response->assertStatus(200);
+    }
 }

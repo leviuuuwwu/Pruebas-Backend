@@ -55,4 +55,34 @@ class LoanTest extends TestCase
 
         $response->assertStatus(201);
     }
+
+    public function test_cualquier_usuario_puede_ver_historial_de_prestamos()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')->getJson('/api/v1/loans');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_usuario_puede_devolver_un_libro()
+    {
+        $estudiante = User::factory()->create()->assignRole('estudiante');
+        
+        // Creamos un libro y un préstamo manual para simular que ya lo tiene
+        $book = Book::factory()->create([
+            'total_copies' => 5,
+            'available_copies' => 4,
+            'is_available' => true,
+        ]);
+
+        $loan = \App\Models\Loan::create([
+            'requester_name' => $estudiante->name,
+            'book_id' => $book->id,
+        ]);
+
+        $response = $this->actingAs($estudiante, 'sanctum')->postJson("/api/v1/loans/{$loan->id}/return");
+
+        $response->assertStatus(200);
+    }
 }
