@@ -69,7 +69,6 @@ class LoanTest extends TestCase
     {
         $estudiante = User::factory()->create()->assignRole('estudiante');
         
-        // Creamos un libro y un préstamo manual para simular que ya lo tiene
         $book = Book::factory()->create([
             'total_copies' => 5,
             'available_copies' => 4,
@@ -79,10 +78,28 @@ class LoanTest extends TestCase
         $loan = \App\Models\Loan::create([
             'requester_name' => $estudiante->name,
             'book_id' => $book->id,
+            'user_id' => $estudiante->id, // <- AQUÍ está la magia. Ahora el préstamo es suyo.
         ]);
 
         $response = $this->actingAs($estudiante, 'sanctum')->postJson("/api/v1/loans/{$loan->id}/return");
 
         $response->assertStatus(200);
+    }
+
+    public function test_error_422_al_intentar_devolver_prestamo_ya_devuelto()
+    {
+        $estudiante = User::factory()->create()->assignRole('estudiante');
+        $book = Book::factory()->create();
+
+        $loan = \App\Models\Loan::create([
+            'requester_name' => $estudiante->name,
+            'book_id' => $book->id,
+            'user_id' => $estudiante->id, // <- También es suyo
+            'return_at' => now(), // <- Y ya lo devolvió
+        ]);
+
+        $response = $this->actingAs($estudiante, 'sanctum')->postJson("/api/v1/loans/{$loan->id}/return");
+
+        $response->assertStatus(422);
     }
 }

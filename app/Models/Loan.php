@@ -14,6 +14,8 @@ class Loan extends Model
         'requester_name',
         'book_id',
         'return_at',
+        'user_id',
+        'return_at',
     ];
 
     public function isActive(): Attribute

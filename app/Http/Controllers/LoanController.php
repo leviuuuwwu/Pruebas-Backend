@@ -37,6 +37,7 @@ class LoanController extends Controller
         $loan = Loan::create([
             'requester_name' => $request->input('requester_name'),
             'book_id' => $request->input('book_id'),
+            'user_id' => $request->user()->id, 
         ]);
 
         $book->update([
